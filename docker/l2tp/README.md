@@ -1,6 +1,6 @@
 ## L2TP/IPsec VPN Server Docker Image by Teddysun
 
-Docker image to run a L2TP/IPsec VPN Server, with both `L2TP/IPsec PSK` and `IPSec Xauth PSK`.
+Docker image to run a L2TP/IPsec (or plain L2TP) VPN Server, with both `L2TP/IPsec PSK` and `IPSec Xauth PSK`.
 
 Based on Alpine with [libreswan-3.29 (IPsec VPN software)](https://pkgs.alpinelinux.org/package/edge/community/x86_64/libreswan) and [xl2tpd-1.3.15 (L2TP daemon)](https://pkgs.alpinelinux.org/package/edge/main/x86_64/xl2tpd).
 
@@ -11,15 +11,6 @@ For more information on docker and containerization technologies, refer to [offi
 ## Prepare the host
 
 If you need to install docker by yourself, follow the [official installation guide][2].
-
-## Pull the image
-
-```bash
-$ docker pull teddysun/l2tp
-```
-
-This pulls the latest release of L2TP/IPsec VPN Server.
-It can be found at [Docker Hub][3].
 
 ## Start a container
 
@@ -64,13 +55,27 @@ If you want to specify a other DNS servers, maybe need to specified in `VPN_DNS1
 
 **Android 6 and 7 users**: If you encounter connection issues, you may set `sha2-truncbug=yes` (default is no) in `/etc/ipsec.conf` by adding `VPN_SHA2_TRUNCBUG=yes` to `/etc/l2tp.env` file, then re-create the Docker container.
 
-There is an example to start a container:
+Here is an example to start a container (using docker-compose):
 
-```bash
-$ docker run -d --privileged -p 500:500/udp -p 4500:4500/udp --name l2tp --restart=always --env-file /etc/l2tp.env -v /lib/modules:/lib/modules teddysun/l2tp
+```yaml
+version: "3"
+services:
+  l2tps:
+    build: "path/to/dockerfile"
+    restart: "always"
+    privileged: true
+    env_file:
+      - "./var/l2tp.env"
+    volumes:
+      - "/lib/modules:/lib/modules"
+      - "./var/chap-secrets:/etc/ppp/chap-secrets"
+    ports:
+      - "500:500/udp"
+      - "4500:4500/udp"
+      - "1701:1701/udp"
 ```
 
-**Warning**: The UDP port number `500` and `4500` must be opened in firewall.
+**Warning**: The UDP port number `500`, `4500`, `1701` must be opened in firewall.
 
 ## Check container details
 
