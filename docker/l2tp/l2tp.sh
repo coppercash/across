@@ -246,6 +246,7 @@ iptables -I FORWARD 5 -i eth+ -d "${XAUTH_NET}" -m conntrack --ctstate RELATED,E
 iptables -I FORWARD 6 -s "${XAUTH_NET}" -o eth+ -j ACCEPT
 iptables -A FORWARD -j DROP
 iptables -t nat -I POSTROUTING -s "${XAUTH_NET}" -o eth+ -m policy --dir out --pol none -j MASQUERADE
+iptables -t nat -I POSTROUTING -s "${L2TP_NET}" -d "${L2TP_NET}" -o ppp+ -j MASQUERADE
 iptables -t nat -I POSTROUTING -s "${L2TP_NET}" -o eth+ -j MASQUERADE
 
 cat <<EOF
